@@ -1,6 +1,7 @@
 const express = require('express');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const path = require('path');
+const fetch = require('node-fetch'); // Add this line to import node-fetch
 
 const app = express();
 const port = 3000;
@@ -56,13 +57,17 @@ app.get('/image', async (req, res) => {
         }
 
         if (newImage) {
+            // Fetch the new image from the URL
+            const response = await fetch(newImage);
+            if (!response.ok) throw new Error('Failed to fetch new image');
+
+            const imageBuffer = await response.buffer();
+            const newImageLoaded = await loadImage(imageBuffer);
+
             // Calculate the position for the new image
             const imageX = 197; // X-coordinate for the new image
             const imageY = 102; // Y-coordinate for the new image (textY + some offset)
             const imageSize = 142; // Size of the circle image
-
-            // Load the new image
-            const newImageLoaded = await loadImage(newImage) || await loadImage('cat.jpg');
 
             // Draw circular image
             ctx.save(); // Save the current state
